@@ -9,15 +9,21 @@ def prefixSum(n):
     level = 0
     index = 1
     while level <= math.log2(n):
-        print(level)
-        count = 1
-        while count + 2**level <= n:
-            dictOfValue[len(dictOfValue)] = 'gate' +str(level)
+        count = 0
+        while count + 2**level+1 <= n:
+            dictOfValue[len(dictOfValue)] = [count, count+2**level*n-(n-1)]
+            print(len(dictOfValue), level)
             count += 1
-        print(count)
         level += 1
+    for key, elem in dictOfValue.items():
+        if key >= n:
+            print(f"GATE {key} OR {elem[0]} {elem[1]}")
+
+    out_count = 0
+
+    for i in range(n):
+        print(f"OUTPUT {i} {i+out_count}")
+        out_count+=1
 
     print(dict(dictOfValue))
-    print(prefix)
-    print(input)
-prefixSum(2)
+prefixSum(4)

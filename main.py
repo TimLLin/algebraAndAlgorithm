@@ -1,16 +1,23 @@
 import math
+from collections import defaultdict
 def prefixSum(n):
     input = [x for x in range(n)]
     prefix = [0] * n
-    dict = {0: 0}
+    dictOfValue = defaultdict(dict)
     for i in input:
-        dict[i] = i
-    for i in input[1:]:
-        if i < len(input):
-            prefix[i] = prefix[i-1] + input[i]
-            dict[i + len(input)-1] = [prefix[i], (i-1, i)]
+        dictOfValue[i] = i
+    level = 1
+    index = 1
+    while level <= math.log2(n):
+        count = 0
+        while count + 2**level <= n:
+            dictOfValue[len(dictOfValue)] = 'gate' +str(level)
+            count +=1
 
-    print(dict)
+        level += 1
+
+    print(level)
+    print(dict(dictOfValue))
     print(prefix)
     print(input)
-prefixSum(3)
+prefixSum(4)

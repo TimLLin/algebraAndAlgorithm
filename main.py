@@ -6,18 +6,18 @@ def prefixSum(n):
     dictOfValue = defaultdict(dict)
     for i in input:
         dictOfValue[i] = i
-    level = 1
+    level = 0
     index = 1
     while level <= math.log2(n):
-        count = 0
+        print(level)
+        count = 1
         while count + 2**level <= n:
             dictOfValue[len(dictOfValue)] = 'gate' +str(level)
-            count +=1
-
+            count += 1
+        print(count)
         level += 1
 
-    print(level)
     print(dict(dictOfValue))
     print(prefix)
     print(input)
-prefixSum(4)
+prefixSum(2)

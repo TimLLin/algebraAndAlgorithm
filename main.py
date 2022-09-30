@@ -1,45 +1,35 @@
-import math
 from collections import defaultdict
-def prefixSum(n):
-    input = [x for x in range(n)]
+def compressor(n):
+    def not_gate(gate_out, gate_in):
+        return f"GATE {gate_out} NOT {gate_in}"
+    def and_or_gate(gate_out, oper, gate_in1, gate_in2):
+        return f"GATE {gate_out} {oper} {gate_in1} {gate_in2}"
 
     dictOfValue = defaultdict(dict)
-    for i in input:
+    for i in range(3*n):
         dictOfValue[i] = i
-
-    prefix = list(dictOfValue.keys())
-    level = 0
-
-    while level <= math.log2(n):
-        count = 0
-        #print(prefix)
-        while count + 2**level+1 <= n:
-            #if count+1 <= 2**level:
-            #    prefix[count] = prefix[count]
-            #    print(prefix)
-            #elif count+1>2**level:
-            #    prefix[count] = list(dictOfValue.keys())[len(dictOfValue)-1]
-            #print(prefix[count])
-            dictOfValue[len(dictOfValue)] = [prefix[count], prefix[count+2**level]]
-
-            #print(len(dictOfValue), level)
-            count += 1
-        prefix = prefix[:2**level] + list(dictOfValue.keys())[len(dictOfValue)+2**level- n: len(dictOfValue)]
-        #print(prefix[:2** level])
-        #print(list(dictOfValue.keys())[len(dictOfValue)+2**level- n: len(dictOfValue)])
-        #prefix = prefix[:2** level] + list(dictOfValue.keys())[len(dictOfValue)-1:2 ** level]
-        level += 1
-    for key, elem in dictOfValue.items():
-        if key >= n:
-            print(f"GATE {key} OR {elem[0]} {elem[1]}")
+    output = []
 
 
-    print(f"OUTPUT {0} {0}")
-    for i in range(1, n):
-        print(f"OUTPUT {i} {prefix[i]}")
+    for i in range(n):
+        dictOfValue[len(dictOfValue)] = not_gate(len(dictOfValue), )
+            f"GATE {len(dictOfValue)} NOT {i}"
+        dictOfValue[len(dictOfValue)] = f"GATE {len(dictOfValue)} AND {n+i, 2*n+i}"
+        dictOfValue[len(dictOfValue)] = f"GATE {len(dictOfValue)} NOT {len(dictOfValue)-1}"
+        dictOfValue[len(dictOfValue)] = f"GATE {len(dictOfValue)} OR {n+i, 2*n+i}"
+        dictOfValue[len(dictOfValue)] = f"GATE {len(dictOfValue)} AND {len(dictOfValue)-2, len(dictOfValue)-1}"
+        dictOfValue[len(dictOfValue)] = f"GATE {len(dictOfValue)} AND {len(dictOfValue)-5, len(dictOfValue)-1}"
+        dictOfValue[len(dictOfValue)] = f"GATE {len(dictOfValue)} NOT {len(dictOfValue)-3}"
+        dictOfValue[len(dictOfValue)] = f"GATE {len(dictOfValue)} OR {len(dictOfValue)-6, len(dictOfValue)-1}"
+        dictOfValue[len(dictOfValue)] = f"GATE {len(dictOfValue)} AND {i, len(dictOfValue)-1}"
+        dictOfValue[len(dictOfValue)] = f"GATE {len(dictOfValue)} OR {len(dictOfValue) - 4, len(dictOfValue) - 1}"
+        output.append(len(dictOfValue))
+        dictOfValue[len(dictOfValue)] = f"GATE {len(dictOfValue)} AND {i, len(dictOfValue)-6}"
+        dictOfValue[len(dictOfValue)] = f"GATE {len(dictOfValue)} OR {len(dictOfValue)-10, len(dictOfValue) - 1}"
 
 
-    #print(dict(dictOfValue))
-    #print(prefix)
-n = int(input())
-prefixSum(n)
+
+    for elem in list(dictOfValue.values())[3*n:]:
+        print(elem)
+
+compressor(2)

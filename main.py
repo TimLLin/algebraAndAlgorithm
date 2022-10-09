@@ -1,42 +1,61 @@
-from collections import defaultdict
-def compressor(n):
-    def not_gate(gate_out, gate_in):
-        return f"GATE {gate_out} NOT {gate_in}"
-    def and_gate(gate_out, gate_in1, gate_in2):
-        return f"GATE {gate_out} AND {gate_in1} {gate_in2}"
-    def or_gate(gate_out, gate_in1, gate_in2):
-        return f"GATE {gate_out} OR {gate_in1} {gate_in2}"
+import numpy as np
+from itertools import product
 
-    dictOfValue = defaultdict(dict)
-    for i in range(3*n):
-        dictOfValue[i] = i
-    output = [0] * (2*(n+1))
+def multipol(n):
+    np_truth_table = np.zeros((2**(2**n), 2**n), 'bool')
+    truth_table_check = set()
+
+    gates = []
+    outputs = []
+
+    lst1 = [[0, 1]] * n
+    variables = np.array(list(product(*lst1)), 'bool').T
+
+    np_truth_table[:n] = variables
+    for i in variables:
+        truth_table_check.add(tuple(i))
+
+
+    #not bloke
+    for i in range(n):
+        elem = np.invert(np_truth_table[i])
+        if tuple(elem) not in truth_table_check:
+            truth_table_check.add(tuple(elem))
+            np_truth_table[len(truth_table_check)-1] = elem
+
+            gates.append(f'GATE {(len(truth_table_check)-1)} NOT {i}')
+            outputs.append(f'OUTPUT {len(outputs)+n} {(len(truth_table_check)-1)}')
+
+
+    #and block
+    for i in range(len(truth_table_check)):
+        for j in range(1, len(truth_table_check)):
+            elem = np_truth_table[i] & np_truth_table[j]
+            if tuple(elem) not in truth_table_check:
+                truth_table_check.add(tuple(elem))
+                np_truth_table[len(truth_table_check) - 1] = elem
+
+                gates.append(f'GATE {(len(truth_table_check) - 1)} AND {i} {j}')
+                outputs.append(f'OUTPUT {len(outputs) + n} {(len(truth_table_check) - 1)}')
+
+    #or block
+    for i in range(len(truth_table_check)):
+        for j in range(1, len(truth_table_check)):
+            elem =  np_truth_table[i] | np_truth_table[j]
+            if tuple(elem) not in truth_table_check:
+                truth_table_check.add(tuple(elem))
+                np_truth_table[len(truth_table_check) - 1] = elem
+
+                gates.append(f'GATE {(len(truth_table_check) - 1)} OR {i} {j}')
+                outputs.append(f'OUTPUT {len(outputs) + n} {(len(truth_table_check) - 1)}')
 
 
     for i in range(n):
-        dictOfValue[len(dictOfValue)] = not_gate(len(dictOfValue), i)
-        dictOfValue[len(dictOfValue)] = and_gate(len(dictOfValue), n+i, 2*n+i)
-        dictOfValue[len(dictOfValue)] = not_gate(len(dictOfValue), len(dictOfValue)-1)
-        dictOfValue[len(dictOfValue)] = or_gate(len(dictOfValue), n+i, 2*n+i)
-        dictOfValue[len(dictOfValue)] = and_gate(len(dictOfValue), len(dictOfValue)-2, len(dictOfValue)-1)
-        dictOfValue[len(dictOfValue)] = and_gate(len(dictOfValue), len(dictOfValue)-5, len(dictOfValue)-1)
-        dictOfValue[len(dictOfValue)] = not_gate(len(dictOfValue), len(dictOfValue)-3)
-        dictOfValue[len(dictOfValue)] = or_gate(len(dictOfValue), len(dictOfValue)-6, len(dictOfValue)-1)
-        dictOfValue[len(dictOfValue)] = and_gate(len(dictOfValue), i, len(dictOfValue)-1)
-        dictOfValue[len(dictOfValue)] = or_gate(len(dictOfValue), len(dictOfValue) - 4, len(dictOfValue) - 1)
-        output[i] = (len(dictOfValue)-1)
-        dictOfValue[len(dictOfValue)] = and_gate(len(dictOfValue), i, len(dictOfValue)-6)
-        dictOfValue[len(dictOfValue)] = or_gate(len(dictOfValue), len(dictOfValue)-10, len(dictOfValue) - 1)
-        output[i+n+2] = (len(dictOfValue)-1)
-
-    dictOfValue[len(dictOfValue)] = and_gate(len(dictOfValue), 0, 3*n)
-    output[n] = len(dictOfValue)-1
-    output[n+1] = len(dictOfValue)-1
-
-    for elem in list(dictOfValue.values())[3*n:]:
+        outputs.insert(i, f'OUTPUT {i} {i}')
+    for elem in gates:
+        print(elem)
+    for elem in outputs:
         print(elem)
 
-    for i in range(len(output)):
-        print(f"OUTPUT {i} {output[i]}")
-n = int(input())
-compressor(n)
+multipol(4)
+

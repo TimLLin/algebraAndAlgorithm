@@ -1,7 +1,5 @@
 import numpy as np
 import math
-import sys
-sys.setrecursionlimit(10000)
 
 z = 2
 def make_matrix(matrix, n):
@@ -58,34 +56,37 @@ def reverse(matrix):
     result_matrix[:base, base:] = b_r
     return result_matrix
 
-def perm(A, P):
-    result = np.zeros((len(A), len(A[0])))
-    indexes = []
-    for i in range(len(A[0])):
-        for j in range(len(A[0])):
+def perm(matrix, P):
+    m, p = matrix.shape[0], matrix.shape[1]
+    result_matrix = np.zeros((m, p))
+    lst = []
+    for i in range(p):
+        for j in range(p):
             if P[i][j] == 1:
-                indexes.append(j)
-
-    for i in range(len(A[0])):
-        for j in range(len(A)):
-            ind = indexes[i]
-            result[j, ind] = A[j, i]
-    return result
+                lst.append(j)
+    for i in range(p):
+        for j in range(m):
+            elem = lst[i]
+            result_matrix[j, elem] = matrix[j, i]
+    return result_matrix
 
 def lup_decomposition(matrix, m, p):
     if m == 1:
-        # 1 L = [1]
+        # 1)  L = [1]
         L = np.array([1])
+
+        # 2) P матрица pxp, переставляющий столбцы 1 с ненулевым элементом
         P = np.eye(p)
 
         for i in range(p):
             if matrix[0, i] == 1:
-                ind = i
-                break
-            else:
-                ind = 0
-        P[0, 0], P[ind, ind], P[ind, 0], P[0, ind] = 0, 0, 1, 1
+                elem = i
 
+                P[0, 0], P[elem, elem], P[elem, 0], P[0, elem] = 0, 0, 1, 1
+                break
+
+
+        # 3) пусть U = AP
         U = perm(matrix, P)
         return L, U, P
 
@@ -104,7 +105,7 @@ def lup_decomposition(matrix, m, p):
     E = U1[:, :m_split]
     F = D[:, :m_split]
 
-    # 9) вычыслить G = D - FE-1U1
+    # 9) вычислить G = D - FE-1U1
     FE_r = strassen(F, reverse(E))
 
     G = (D - np.matmul(FE_r, U1)) % z
@@ -124,20 +125,18 @@ def lup_decomposition(matrix, m, p):
 
     # 14) пусть L это матрица mxm из L1, Om/2, FE-1, L2
     O_m_2 = np.zeros((m_split, m_split))
-    try:
-        L = (np.vstack((np.hstack((L1, O_m_2)), np.hstack((FE_r, L2))))) % z
-    except:
-        L = (np.vstack((np.hstack((L1[:, np.newaxis], O_m_2)), np.hstack((FE_r, L2[:, np.newaxis]))))) % z
+    if O_m_2.shape != L1.shape and FE_r.shape != L2.shape:
+        L = np.vstack((np.hstack((L1, np.squeeze(O_m_2))), np.hstack((np.squeeze(FE_r), L2))))
+    else:
+        L = np.vstack((np.hstack((L1, O_m_2)), np.hstack((FE_r, L2))))
 
     # 15) пусть U это матрица mxp из H, Om/2 и U2
     U = np.vstack((H, np.hstack((O_m_2, U2))))
 
-    # 16) P = P3 * P1
+    # 16) P = P3P1
     P = perm(P3, P1)
 
     return L, U, P
-
-
 
 matrix = []
 matrix.append(list(map(int, input().split())))

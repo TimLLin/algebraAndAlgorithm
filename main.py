@@ -106,7 +106,8 @@ def lup_decomposition(matrix, m, p):
 
     # 9) вычыслить G = D - FE-1U1
     FE_r = strassen(F, reverse(E))
-    G = (D + strassen(FE_r, U1)) % z
+
+    G = (D - np.matmul(FE_r, U1)) % z
 
     # 10) пусть G` самые правые p-m/2 стобцов
     G_ = G[:, -(p - m_split):]
@@ -116,23 +117,23 @@ def lup_decomposition(matrix, m, p):
 
     # 12) пусть P3 матрица pxp, левый верхний угол Im/2, правый нижний P2
     I_m_2 = np.eye(m_split)
-    P3 = np.vstack((np.hstack((I_m_2, np.zeros((p - m_split, m_split)))), np.hstack((np.zeros((p - m_split, m_split)), P2))))
+    P3 = np.vstack((np.hstack((I_m_2, np.zeros((m_split, p-m_split)))), np.hstack((np.zeros((p - m_split, m_split)), P2))))
 
     # 13) вычислить H = U1P3-1
-    H = perm(U1, P2.T)
+    H = perm(U1, P3.T)
 
     # 14) пусть L это матрица mxm из L1, Om/2, FE-1, L2
     O_m_2 = np.zeros((m_split, m_split))
-
-    L = (np.vstack((np.hstack((L1, O_m_2)), np.hstack((FE_r, L2))))) % z
-
-    #L = (np.vstack((np.hstack((L1[:, np.newaxis], O_m_2)), np.hstack((FE_r, L2[:, np.newaxis]))))) % z
+    try:
+        L = (np.vstack((np.hstack((L1, O_m_2)), np.hstack((FE_r, L2))))) % z
+    except:
+        L = (np.vstack((np.hstack((L1[:, np.newaxis], O_m_2)), np.hstack((FE_r, L2[:, np.newaxis]))))) % z
 
     # 15) пусть U это матрица mxp из H, Om/2 и U2
-    U = np.vstack((H, np.hstack(O_m_2, U2)))
+    U = np.vstack((H, np.hstack((O_m_2, U2))))
 
     # 16) P = P3 * P1
-    P = perm(P3, P1) % z
+    P = perm(P3, P1)
 
     return L, U, P
 
@@ -152,3 +153,9 @@ m = matrix.shape[0]
 p = matrix.shape[1]
 L, U, P = lup_decomposition(matrix, m, p)
 
+for elem in L[:n, :n].astype('int').tolist():
+    print(" ".join(map(str, elem)))
+for elem in U[:n, :n].astype('int').tolist():
+    print(" ".join(map(str, elem)))
+for elem in P[:n, :n].astype('int').tolist():
+    print(" ".join(map(str, elem)))
